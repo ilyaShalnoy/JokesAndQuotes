@@ -24,7 +24,7 @@ class MyApplication : Application() {
         val service = retrofit.create(JokeService::class.java)
 
         resourceManager = BaseResourcesManager(this)
-        viewModel = ViewModel(BaseModel(BaseCachedDataSource(Realm.getDefaultInstance()), BaseCloudDataSourceImpl(service), resourceManager))
+        viewModel = ViewModel(BaseModel(BaseCachedDataSource(BaseRealmProvider()), BaseCloudDataSourceImpl(service), resourceManager))
     }
 
 }

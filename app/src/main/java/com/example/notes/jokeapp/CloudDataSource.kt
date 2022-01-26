@@ -1,5 +1,6 @@
 package com.example.notes.jokeapp
 
 interface CloudDataSource {
-    fun getJoke(callback: JokeClaudCallback)
+
+    suspend fun getJoke(): Result<JokeServerModel, ErrorType>
 }

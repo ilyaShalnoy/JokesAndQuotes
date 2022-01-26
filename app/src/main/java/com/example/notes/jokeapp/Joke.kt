@@ -9,7 +9,7 @@ class Joke(
 ) {
     fun toBaseJoke() = BaseJokeUiModel(text, punchline)
     fun toFavoriteJoke() = FavoriteJokeUiModel(text, punchline)
-    fun change(cacheDataSource: CacheDataSource): JokeUiModel = cacheDataSource.addOrRemove(id, this)
+    suspend fun change(cacheDataSource: CacheDataSource): JokeUiModel = cacheDataSource.addOrRemove(id, this)
     fun toRealmJoke(): JokeRealm {
         return JokeRealm().also {
             it.id = id

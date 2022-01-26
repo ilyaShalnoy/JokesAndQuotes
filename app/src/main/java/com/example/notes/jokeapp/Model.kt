@@ -2,19 +2,10 @@ package com.example.notes.jokeapp
 
 interface Model {
 
-    fun getJoke()
+    suspend fun getJoke(): JokeUiModel
 
-    fun init(jokeCallback: JokeCallback)
-
-    fun clear()
-
-    fun changeJokeStatus(callback: JokeCallback)
+    suspend fun changeJokeStatus(): JokeUiModel?
 
     fun chooseDataSource(cached: Boolean)
 }
 
-interface JokeCallback {
-
-    fun provideJoke(jokeUiModel: JokeUiModel)
-
-}

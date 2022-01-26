@@ -39,14 +39,12 @@ class MainActivity : AppCompatActivity() {
 
         viewModel?.init(object : DataCallback {
             override fun provideText(text: String) {
-                runOnUiThread {
-                    progressBar.visibility = View.INVISIBLE
-                    button.isEnabled = true
-                    textView.text = text
-                }
+                progressBar.visibility = View.INVISIBLE
+                button.isEnabled = true
+                textView.text = text
             }
 
-            override fun provideIconRes(id: Int) = runOnUiThread {
+            override fun provideIconRes(id: Int) {
                 iconView.setImageResource(id)
             }
         })

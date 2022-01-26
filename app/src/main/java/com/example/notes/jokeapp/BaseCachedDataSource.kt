@@ -1,36 +1,38 @@
 package com.example.notes.jokeapp
 
 import io.realm.Realm
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-class BaseCachedDataSource(private val realm: Realm) : CacheDataSource {
+class BaseCachedDataSource(private val realmProvider: RealmProvider) : CacheDataSource {
 
-    override fun addOrRemove(id: Int, joke: Joke): JokeUiModel {
-        realm.let {
-            val jokeRealm = it.where(JokeRealm::class.java).equalTo("id", id).findFirst()
-            return if (jokeRealm == null) {
-                val newJoke = joke.toRealmJoke()
-                it.executeTransactionAsync { transaction ->
-                    transaction.insert(newJoke)
+    override suspend fun addOrRemove(id: Int, joke: Joke): JokeUiModel =
+        withContext(Dispatchers.IO) {
+            Realm.getDefaultInstance().use {
+                val jokeRealm = it.where(JokeRealm::class.java).equalTo("id", id).findFirst()
+                return@withContext if (jokeRealm == null) {
+                    val newJoke = joke.toRealmJoke()
+                    it.executeTransaction { transaction ->
+                        transaction.insert(newJoke)
+                    }
+                    joke.toFavoriteJoke()
+                } else {
+                    it.executeTransaction {
+                        jokeRealm.deleteFromRealm()
+                    }
+                    joke.toBaseJoke()
                 }
-                joke.toFavoriteJoke()
-            } else {
-                it.executeTransaction {
-                    jokeRealm.deleteFromRealm()
-                }
-                joke.toBaseJoke()
             }
         }
 
-    }
-
-    override fun getJoke(jokeCachedCallback: JokeCachedCallback) {
-        realm.use {
+    override suspend fun getJoke(): Result<Joke, Unit> {
+        realmProvider.provide().let {
             val jokes = it.where(JokeRealm::class.java).findAll()
             if (jokes.isEmpty()) {
-                jokeCachedCallback.fail()
+                return Result.Error(Unit)
             } else
                 jokes.random().let { joke ->
-                    jokeCachedCallback.provide(
+                    return@getJoke Result.Success(
                         Joke(
                             joke.id,
                             joke.category,
