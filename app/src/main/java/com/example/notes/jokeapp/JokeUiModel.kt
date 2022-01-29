@@ -12,18 +12,18 @@ class FavoriteJokeUiModel(private val text: String, private val punchline: Strin
 }
 
 class FailedJokeUiModel(private val text: String) : JokeUiModel(text, "") {
+    override fun text() = text
     override fun getIconResId() = 0
 }
 
 abstract class JokeUiModel(private val text: String, private val punchline: String) {
 
-    protected fun getJokeUi() = "$text\n$punchline"
+    protected open fun text() = "$text\n$punchline"
 
     @DrawableRes
     protected abstract fun getIconResId(): Int
 
-    fun map(callback: DataCallback) = callback.run {
-        provideText(getJokeUi())
-        provideIconRes(getIconResId())
-    }
+    fun show(communication: Communication) = communication.showState(
+        MainViewModel.State.Initial(text(), getIconResId())
+    )
 }

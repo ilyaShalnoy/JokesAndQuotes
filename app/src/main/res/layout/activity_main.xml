@@ -20,7 +20,7 @@
             android:layout_weight="1"
             android:text="@string/show_favorite_joke" />
 
-        <ImageButton
+        <com.example.notes.jokeapp.CorrectImageButton
             android:id="@+id/iconView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
             android:src="@drawable/ic_favorite_empty" />
     </LinearLayout>
 
-    <TextView
+    <com.example.notes.jokeapp.CorrectTextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -38,18 +38,18 @@
         android:textColor="@color/black"
         tools:text="Text joke, error (no connection, server error)" />
 
-    <ProgressBar
+    <com.example.notes.jokeapp.CorrectProgress
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:indeterminate="true" />
 
-    <Button
+    <com.example.notes.jokeapp.CorrectButton
         android:id="@+id/button"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_get_joke" />
-
 
 </LinearLayout>

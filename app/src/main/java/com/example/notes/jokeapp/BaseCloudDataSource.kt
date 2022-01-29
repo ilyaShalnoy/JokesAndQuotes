@@ -7,7 +7,7 @@ import retrofit2.Response
 import java.lang.Exception
 import java.net.UnknownHostException
 
-class BaseCloudDataSourceImpl(private val service: JokeService) : CloudDataSource {
+class BaseCloudDataSource(private val service: JokeService) : CloudDataSource {
 
 
     override suspend fun getJoke(): Result<JokeServerModel, ErrorType> {

@@ -25,6 +25,7 @@ class BaseCachedDataSource(private val realmProvider: RealmProvider) : CacheData
             }
         }
 
+
     override suspend fun getJoke(): Result<Joke, Unit> {
         realmProvider.provide().let {
             val jokes = it.where(JokeRealm::class.java).findAll()

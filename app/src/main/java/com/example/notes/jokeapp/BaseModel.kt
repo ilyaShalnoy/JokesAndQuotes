@@ -5,55 +5,76 @@ import kotlinx.coroutines.withContext
 
 class BaseModel(
     private val cacheDataSource: CacheDataSource,
-    private val cloudDataSource: CloudDataSource,
-    private val resourcesManager: ResourceManager
+    private val cloudResultHandler: CloudResultHandler,
+    private val cacheResultHandler: CacheResultHandler,
+    private val cachedJoke: CachedJoke
 ) : Model {
 
-    private var cachedJoke: Joke? = null
-    private var getJokeFromCache = false
+    private var currentResultHandler: BaseResultHandler<*, *> = cloudResultHandler
 
-    private val noConnection by lazy { NoConnection(resourcesManager) }
-    private val serviceUnavailable by lazy { ServiceUnavailable(resourcesManager) }
-    private val noCachedJokes by lazy { NoCachedJokes(resourcesManager) }
+    override fun chooseDataSource(cached: Boolean) {
+        currentResultHandler = if (cached) cacheResultHandler else cloudResultHandler
+    }
 
     override suspend fun getJoke(): JokeUiModel = withContext(Dispatchers.IO) {
-        if (getJokeFromCache) {
-            return@withContext when (val result = cacheDataSource.getJoke()) {
-                is Result.Success<Joke> -> {
-                    cachedJoke = result.data
-                    val joke = result.data.toFavoriteJoke()
-                    joke
-                }
-                is Result.Error<Unit> -> {
-                    cachedJoke = null
-                    FailedJokeUiModel(noCachedJokes.getMessage())
-                }
-            }
-        } else {
-            return@withContext  when (val result = cloudDataSource.getJoke()) {
-                is Result.Success<JokeServerModel> ->
-                    result.data.toJoke().let {
-                        cachedJoke = it
-                        it.toBaseJoke()
-                    }
-                is Result.Error<ErrorType> -> {
-                    cachedJoke = null
-                    val failure = if (result.exception == ErrorType.NO_CONNECTION)
-                        noConnection
-                    else
-                        serviceUnavailable
-                    FailedJokeUiModel(failure.getMessage())
-                }
-
-            }
-        }
+        return@withContext currentResultHandler.process()
     }
 
     override suspend fun changeJokeStatus(): JokeUiModel? {
-       return cachedJoke?.change(cacheDataSource)
+        return cachedJoke.change(cacheDataSource)
     }
 
-    override fun chooseDataSource(cached: Boolean) {
-        getJokeFromCache = cached
+}
+
+abstract class BaseResultHandler<S, E>(
+    private val jokeDataFetcher: JokeDataFetcher<S, E>
+) {
+
+    suspend fun process(): JokeUiModel {
+        return handleResult(jokeDataFetcher.getJoke())
+    }
+
+    protected abstract fun handleResult(result: Result<S, E>): JokeUiModel
+}
+
+class CloudResultHandler(
+    private val cachedJoke: CachedJoke,
+    jokeDataFetcher: JokeDataFetcher<JokeServerModel, ErrorType>,
+    private val noConnection: JokeFailure,
+    private val serviceUnavailable: ServiceUnavailable
+) : BaseResultHandler<JokeServerModel, ErrorType>(jokeDataFetcher) {
+
+    override fun handleResult(result: Result<JokeServerModel, ErrorType>) = when (result) {
+        is Result.Success<JokeServerModel> ->
+            result.data.toJoke().let {
+                cachedJoke.saveJoke(it)
+                it.toBaseJoke()
+            }
+        is Result.Error<ErrorType> -> {
+            cachedJoke.clear()
+            val failure = if (result.exception == ErrorType.NO_CONNECTION)
+                noConnection
+            else
+                serviceUnavailable
+            FailedJokeUiModel(failure.getMessage())
+        }
+    }
+}
+
+class CacheResultHandler(
+    private val cachedJoke: CachedJoke,
+    jokeDataFetcher: JokeDataFetcher<Joke, Unit>,
+    private val noCachedJokes: NoCachedJokes
+) : BaseResultHandler<Joke, Unit>(jokeDataFetcher) {
+
+    override fun handleResult(result: Result<Joke, Unit>) = when (result) {
+        is Result.Success<Joke> -> result.data.let {
+            cachedJoke.saveJoke(it)
+            it.toFavoriteJoke()
+        }
+        is Result.Error<Unit> -> {
+            cachedJoke.clear()
+            FailedJokeUiModel(noCachedJokes.getMessage())
+        }
     }
 }

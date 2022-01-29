@@ -1,18 +1,20 @@
 package com.example.notes.jokeapp
 
 import android.app.Application
-import com.google.gson.Gson
 import io.realm.Realm
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class MyApplication : Application() {
 
-    lateinit var viewModel: ViewModel
-    lateinit var resourceManager: ResourceManager
+    lateinit var viewModel: MainViewModel
 
     override fun onCreate() {
         super.onCreate()
+
+        val cachedJoke: CachedJoke = BaseCachedJoke()
+        val cacheDataSource = BaseCachedDataSource(BaseRealmProvider())
+        val resourceManager = BaseResourcesManager(this)
 
         Realm.init(this)
 
@@ -23,8 +25,23 @@ class MyApplication : Application() {
 
         val service = retrofit.create(JokeService::class.java)
 
-        resourceManager = BaseResourcesManager(this)
-        viewModel = ViewModel(BaseModel(BaseCachedDataSource(BaseRealmProvider()), BaseCloudDataSourceImpl(service), resourceManager))
+        viewModel = MainViewModel(
+            BaseModel(
+                cacheDataSource,
+                CloudResultHandler(
+                    cachedJoke,
+                    BaseCloudDataSource(service),
+                    NoConnection(resourceManager),
+                    ServiceUnavailable(resourceManager)
+                ),
+                CacheResultHandler(
+                    cachedJoke,
+                    cacheDataSource,
+                    NoCachedJokes(resourceManager)
+                ), cachedJoke
+            ),
+            BaseCommunication()
+        )
     }
 
 }
