@@ -8,48 +8,18 @@
     android:orientation="vertical"
     tools:context=".presentation.MainActivity">
 
-    <LinearLayout
+    <com.example.notes.jokeapp.presentation.FavoriteDataView
+        android:id="@+id/jokeFavoriteDataView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        app:checkBoxText="@string/show_favorite_joke"
+        app:actionButtonText="@string/button_get_joke"
+        android:layout_height="wrap_content" />
 
-        <CheckBox
-            android:id="@+id/checkBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/show_favorite_joke" />
-
-        <com.example.notes.jokeapp.presentation.CorrectImageButton
-            android:id="@+id/iconView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="?selectableItemBackground"
-            android:contentDescription="@string/favorite_icons_image_description"
-            android:src="@drawable/ic_favorite_empty" />
-    </LinearLayout>
-
-    <com.example.notes.jokeapp.presentation.CorrectTextView
-        android:id="@+id/textView"
+    <com.example.notes.jokeapp.presentation.FavoriteDataView
+        android:id="@+id/quoteFavoriteDataView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textColor="@color/black"
-        tools:text="Text joke, error (no connection, server error)" />
-
-    <com.example.notes.jokeapp.presentation.CorrectProgress
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true" />
-
-    <com.example.notes.jokeapp.presentation.CorrectButton
-        android:id="@+id/button"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_get_joke" />
+        app:checkBoxText="@string/show_favorite_quote"
+        app:actionButtonText="@string/button_get_quote"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

@@ -14,30 +14,24 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val textView = findViewById<CorrectTextView>(R.id.textView)
         val progressBar = findViewById<CorrectProgress>(R.id.progressBar)
-        val button = findViewById<CorrectButton>(R.id.button)
-        val checkBox = findViewById<CheckBox>(R.id.checkBox)
-        val iconView = findViewById<CorrectImageButton>(R.id.iconView)
+        val favoriteDataView = findViewById<FavoriteDataView>(R.id.jokeFavoriteDataView)
+        viewModel = (application as MyApplication).viewModel
 
         progressBar.visibility = View.INVISIBLE
 
-        viewModel = (application as MyApplication).viewModel
-
-        button.setOnClickListener {
+        favoriteDataView.listenChanges { isChecked ->
+            viewModel.chooseFavorite(isChecked)
+        }
+        favoriteDataView.handleChangeButton {
+            viewModel.changeJokeStatus()
+        }
+        favoriteDataView.handleActionButton {
             viewModel.getJoke()
         }
 
-        checkBox.setOnCheckedChangeListener { _, checked ->
-            viewModel.chooseFavorite(checked)
-        }
-
-        iconView.setOnClickListener {
-            viewModel.changeJokeStatus()
-        }
-
         viewModel.observe(this, { state ->
-            state.show(progressBar, button, textView, iconView)
+            favoriteDataView.show(state)
         })
     }
 }

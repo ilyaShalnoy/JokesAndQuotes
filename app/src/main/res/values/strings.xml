@@ -1,9 +1,11 @@
 <resources>
     <string name="app_name">JokeApp</string>
     <string name="button_get_joke">get joke</string>
+    <string name="button_get_quote">get quote</string>
     <string name="no_connection">No internet connection</string>
     <string name="service_unavailable">Service is unavailable</string>
     <string name="show_favorite_joke">Show favorite joke</string>
+    <string name="show_favorite_quote">Show favorite quote</string>
     <string name="favorite_icons_image_description">favorite icons</string>
     <string name="no_cached_jokes">No favorite jokes! Add one by heart icon</string>
     <string name="generic_fail_message">Error</string>

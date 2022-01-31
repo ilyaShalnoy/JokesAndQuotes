@@ -7,6 +7,7 @@ interface JokeService {
 
     @GET("https://v2.jokeapi.dev/joke/Misc?type=twopart")
     fun getJoke(): Call<JokeServerModel>
+
 }
 
 
