@@ -1,7 +1,12 @@
 package com.example.notes.jokeapp
 
+import com.example.notes.jokeapp.core.ResourceManager
+import com.example.notes.jokeapp.core.data.cache.CacheDataSource
+import com.example.notes.jokeapp.core.data.net.CloudDataSource
+import com.example.notes.jokeapp.data.cache.BaseCachedData
 import com.example.notes.jokeapp.data.*
-import com.example.notes.jokeapp.domain.Joke
+import com.example.notes.jokeapp.data.net.JokeServerModel
+import com.example.notes.jokeapp.domain.CommonItem
 import com.example.notes.jokeapp.presentation.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -13,7 +18,7 @@ class BaseJokeRepositoryTest {
     fun test_change_data_source(): Unit = runBlocking {
         val cachedDataSource = TestCacheDataSource()
         val cloudDataSource = TestCloudDataSource()
-        val cachedJokes = BaseCachedJoke()
+        val cachedJokes = BaseCachedData()
 
         val cloudResultHandler = CloudResultHandler(
             cachedJokes,
@@ -25,34 +30,34 @@ class BaseJokeRepositoryTest {
         val cacheResultHandler = CacheResultHandler(
             cachedJokes,
             cachedDataSource,
-            NoCachedJokes(TestResourceManager())
+            NoCachedData(TestResourceManager())
         )
-        val model = BaseJokeRepository(cachedDataSource, cloudResultHandler, cacheResultHandler, cachedJokes)
+        val model = BaseRepository(cachedDataSource, cloudResultHandler, cacheResultHandler, cachedJokes)
 
-        val jokeCloudFailure = model.getJoke()
-        assertEquals(jokeCloudFailure is FailedJokeUiModel, true)
+        val jokeCloudFailure = model.getCommonItem()
+        assertEquals(jokeCloudFailure is FailedCommonUiModel, true)
         cloudDataSource.getJokeWithResult(false, 1)
-        assertEquals(jokeCloudFailure is FailedJokeUiModel, true)
+        assertEquals(jokeCloudFailure is FailedCommonUiModel, true)
 
         cloudDataSource.getJokeWithResult(true)
-        val jokeCloud = model.getJoke()
-        assertEquals(jokeCloud is BaseJokeUiModel, true)
-        model.changeJokeStatus()
+        val jokeCloud = model.getCommonItem()
+        assertEquals(jokeCloud is BaseCommonUiModel, true)
+        model.changeStatus()
         assertEquals(cachedDataSource.checkContainsId(0), true)
 
         cachedDataSource.getNextJokeWithResult(true, 0)
         model.chooseDataSource(true)
-        val jokeCache = model.getJoke()
-        assertEquals(jokeCache is FavoriteJokeUiModel, true)
+        val jokeCache = model.getCommonItem()
+        assertEquals(jokeCache is FavoriteCommonUiModel, true)
 
         cachedDataSource.getNextJokeWithResult(false, 0)
-        val jokeCacheFailure = model.getJoke()
-        assertEquals(jokeCacheFailure is FailedJokeUiModel, true)
+        val jokeCacheFailure = model.getCommonItem()
+        assertEquals(jokeCacheFailure is FailedCommonUiModel, true)
     }
 
     private inner class TestCacheDataSource : CacheDataSource {
 
-        private val map = HashMap<Int, Joke>()
+        private val map = HashMap<Int, CommonItem>()
         private var success: Boolean = false
         private var nextJokeIdToGet = 0
 
@@ -61,7 +66,7 @@ class BaseJokeRepositoryTest {
             nextJokeIdToGet = id
         }
 
-        override suspend fun getJoke(): com.example.notes.jokeapp.data.Result<Joke, Unit> {
+        override suspend fun getData(): com.example.notes.jokeapp.data.Result<CommonItem, Unit> {
             return if (success) {
                 com.example.notes.jokeapp.data.Result.Success(map[0]!!)
             } else {
@@ -69,7 +74,7 @@ class BaseJokeRepositoryTest {
             }
         }
 
-        override suspend fun addOrRemove(id: Int, joke: JokeDataModel): JokeUiModel {
+        override suspend fun addOrRemove(id: Int, joke: CommonDataModel): CommonUiModel {
             return if (map.containsKey(id)) {
                 val result = map[id]!!.toBaseJoke()
                 map.remove(id)
@@ -89,7 +94,7 @@ class BaseJokeRepositoryTest {
         private var count = 0
         private var error = 0
 
-        override suspend fun getJoke(): com.example.notes.jokeapp.data.Result<JokeServerModel, ErrorType> {
+        override suspend fun getData(): com.example.notes.jokeapp.data.Result<JokeServerModel, ErrorType> {
             return if (success) {
                 com.example.notes.jokeapp.data.Result.Success(JokeServerModel(count++, "category", "type", "text $count", "puncline$count"))
             } else {
