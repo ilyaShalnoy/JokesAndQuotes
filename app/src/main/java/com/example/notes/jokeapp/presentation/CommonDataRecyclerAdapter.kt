@@ -43,7 +43,6 @@ class CommonDataRecyclerAdapter<T>(
         communicationList.getDiffResult().dispatchUpdatesTo(this)
     }
 
-
     abstract class CommonDataViewHolder<T>(view: View) : RecyclerView.ViewHolder(view) {
         private val textView = itemView.findViewById<CorrectTextView>(R.id.commonDataTextView)
 

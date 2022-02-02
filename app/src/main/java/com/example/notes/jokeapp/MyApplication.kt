@@ -20,7 +20,8 @@ class MyApplication : Application() {
 
     lateinit var viewModel: BaseViewModel<Int>
     lateinit var quoteViewModel: BaseViewModel<String>
-    lateinit var jokeCommunication: CommonCommunication<Int>
+    lateinit var jokeCommunication: BaseCommunication<Int>
+    lateinit var quoteCommunication: BaseCommunication<String>
 
     override fun onCreate() {
         super.onCreate()
@@ -49,10 +50,11 @@ class MyApplication : Application() {
         val jokeMapper = CommonSuccessMapper<Int>()
 
         jokeCommunication = BaseCommunication()
+        quoteCommunication = BaseCommunication()
 
         BaseViewModel(BaseInteractor(jokeRepository, failureFactory, jokeMapper), jokeCommunication).also { viewModel = it }
 
-        BaseViewModel(BaseInteractor(quoteRepository, failureFactory, quoteMapper), BaseCommunication()).also {
+        BaseViewModel(BaseInteractor(quoteRepository, failureFactory, quoteMapper), quoteCommunication).also {
             quoteViewModel = it
         }
 
