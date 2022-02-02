@@ -11,6 +11,4 @@ interface Communication {
     fun observe(lifecycleOwner: LifecycleOwner, observer: Observer<BaseViewModel.State>);
 
     fun isState(type: Int): Boolean
-
 }
-

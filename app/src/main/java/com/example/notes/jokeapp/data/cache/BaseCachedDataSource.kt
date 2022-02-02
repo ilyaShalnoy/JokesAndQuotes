@@ -7,6 +7,7 @@ import com.example.notes.jokeapp.core.domain.NoCachedException
 import com.example.notes.jokeapp.data.*
 import io.realm.Realm
 import io.realm.RealmObject
+import io.realm.RealmResults
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -40,13 +41,33 @@ abstract class BaseCachedDataSource<T : RealmObject, E>(
         }
 
 
-    override suspend fun getData(): CommonDataModel<E> {
+    override suspend fun getData() = getRealmData {
+        realmToCommonDataMapper.map(it.random())
+    }
+
+
+    override suspend fun getDataList(): List<CommonDataModel<E>> = getRealmData { results ->
+        results.map {
+            realmToCommonDataMapper.map(it)
+        }
+    }
+
+
+    private fun <R> getRealmData(block: (list: RealmResults<T>) -> R): R {
         realmProvider.provide().use {
             val lists = it.where(dbClass).findAll()
             if (lists.isEmpty()) {
                 throw NoCachedException()
             } else
-                return realmToCommonDataMapper.map(lists.random())
+                return block.invoke(lists)
+        }
+    }
+
+    override suspend fun remove(id: E) = withContext(Dispatchers.IO) {
+        realmProvider.provide().use { realm ->
+            realm.executeTransaction{
+                findRealmObject(realm, id)?.deleteFromRealm()
+            }
         }
     }
 }

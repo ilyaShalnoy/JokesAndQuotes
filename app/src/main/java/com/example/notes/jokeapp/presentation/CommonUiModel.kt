@@ -2,18 +2,23 @@ package com.example.notes.jokeapp.presentation
 
 import androidx.annotation.DrawableRes
 import com.example.notes.jokeapp.R
+import com.example.notes.jokeapp.core.presentation.CommonCommunication
 import com.example.notes.jokeapp.core.presentation.Communication
+import com.example.notes.jokeapp.core.presentation.ShowText
 
 
-class BaseCommonUiModel(private val text: String, private val punchline: String) : CommonUiModel(text, punchline) {
+class BaseCommonUiModel<E>(private val text: String, private val punchline: String) : CommonUiModel<E>(text, punchline) {
     override fun getIconResId() = R.drawable.ic_favorite_empty
 }
 
-class FavoriteCommonUiModel(private val text: String, private val punchline: String) : CommonUiModel(text, punchline) {
+class FavoriteCommonUiModel<E>(private val id: E, private val text: String, private val punchline: String) : CommonUiModel<E>(text, punchline) {
     override fun getIconResId() = R.drawable.ic_favorite_fill
+    override fun change(listener: CommonDataRecyclerAdapter.FavoriteItemClickListener<E>) = listener.change(id)
+
+    override fun matches(id: E): Boolean = this.id == id
 }
 
-class FailedCommonUiModel(private val text: String) : CommonUiModel(text, "") {
+class FailedCommonUiModel<E>(private val text: String) : CommonUiModel<E>(text, "") {
     override fun text() = text
     override fun getIconResId() = 0
     override fun show(communication: Communication) = communication.showState(
@@ -21,7 +26,7 @@ class FailedCommonUiModel(private val text: String) : CommonUiModel(text, "") {
     )
 }
 
-abstract class CommonUiModel(private val firstText: String, private val secondText: String) {
+abstract class CommonUiModel<T>(private val firstText: String, private val secondText: String) {
 
     protected open fun text() = "$firstText\n$secondText"
 
@@ -31,4 +36,10 @@ abstract class CommonUiModel(private val firstText: String, private val secondTe
     open fun show(communication: Communication) = communication.showState(
         BaseViewModel.State.Initial(text(), getIconResId())
     )
+
+    open fun matches(id: T): Boolean = false
+
+    open fun change(listener: CommonDataRecyclerAdapter.FavoriteItemClickListener<T>) = Unit
+
+    fun show(showText: ShowText) = showText.show(text())
 }

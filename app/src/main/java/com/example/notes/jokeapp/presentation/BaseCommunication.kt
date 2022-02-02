@@ -3,14 +3,23 @@ package com.example.notes.jokeapp.presentation
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.example.notes.jokeapp.core.presentation.Communication
+import com.example.notes.jokeapp.core.presentation.CommonCommunication
 
-class BaseCommunication : Communication {
+class BaseCommunication<T> : CommonCommunication<T> {
 
     private val liveData = MutableLiveData<BaseViewModel.State>()
+    private val listLiveData = MutableLiveData<ArrayList<CommonUiModel<T>>>()
 
     override fun showState(state: BaseViewModel.State) {
         liveData.value = state
+    }
+
+    override fun showDataList(list: List<CommonUiModel<T>>) {
+        listLiveData.value = ArrayList(list)
+    }
+
+    override fun observeList(owner: LifecycleOwner, observer: Observer<List<CommonUiModel<T>>>) {
+        listLiveData.observe(owner, observer)
     }
 
     override fun observe(lifecycleOwner: LifecycleOwner, observer: Observer<BaseViewModel.State>) {
@@ -19,5 +28,20 @@ class BaseCommunication : Communication {
 
     override fun isState(type: Int): Boolean {
         return liveData.value?.isType(type) ?: false
+    }
+
+    override fun removeItem(id: T, owner: LifecycleOwner, observer: Observer<List<CommonUiModel<T>>>): Int {
+        val found = listLiveData.value?.find {
+            it.matches(id)
+        }
+        val position = listLiveData.value?.indexOf(found) ?: -1
+        found?.let {
+            listLiveData.value?.remove(it)
+        }
+        return position
+    }
+
+    override fun getList(): List<CommonUiModel<T>> {
+        return listLiveData.value ?: emptyList()
     }
 }

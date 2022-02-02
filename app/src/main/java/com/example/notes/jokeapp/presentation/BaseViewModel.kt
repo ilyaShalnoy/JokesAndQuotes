@@ -5,15 +5,16 @@ import androidx.lifecycle.*
 import androidx.lifecycle.ViewModel
 import com.example.notes.jokeapp.core.domain.CommonInteractor
 import com.example.notes.jokeapp.core.presentation.*
+import com.example.notes.jokeapp.domain.CommonItem
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class BaseViewModel(
-    private val interactor: CommonInteractor,
-    private val communication: Communication,
+class BaseViewModel<T>(
+    private val interactor: CommonInteractor<T>,
+    private val communication: CommonCommunication<T>,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main
-) : ViewModel(), CommonViewModel {
+) : ViewModel(), CommonViewModel<T> {
 
 
     override fun getItem() {
@@ -23,19 +24,35 @@ class BaseViewModel(
         }
     }
 
-    override fun changeItemStatus() {
+    override fun getItemList() {
         viewModelScope.launch(dispatcher) {
-            if (communication.isState(State.INITIAL)) {
-                interactor.changeFavorites().to().show(communication)
-            }
+            communication.showDataList(interactor.getItemList().toUiList())
         }
+    }
+
+    override fun changeItemStatus(id: T, owner: LifecycleOwner, observer: Observer<List<CommonUiModel<T>>>): Int {
+        val position = communication.removeItem(id, owner, observer)
+        viewModelScope.launch(dispatcher) {
+            interactor.removeItem(id)
+        }
+        return position
     }
 
     override fun chooseFavorites(favorites: Boolean) = interactor.chooseFavorites(favorites)
 
+    override fun changeItemStatus() {
+        viewModelScope.launch(dispatcher) {
+            if (communication.isState(State.INITIAL)) {
+                interactor.changeFavorites().to().show(communication)
+                communication.showDataList(interactor.getItemList().toUiList())
+            }
+        }
+    }
+
 
     override fun observe(owner: LifecycleOwner, observer: Observer<State>) = communication.observe(owner, observer)
 
+    override fun observeList(owner: LifecycleOwner, observer: Observer<List<CommonUiModel<T>>>) = communication.observeList(owner, observer)
 
     sealed class State {
 
@@ -90,6 +107,9 @@ class BaseViewModel(
     }
 }
 
+fun <T> List<CommonItem<T>>.toUiList() = map {
+    it.to()
+}
 
 
 

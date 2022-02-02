@@ -8,18 +8,25 @@
     android:orientation="vertical"
     tools:context=".presentation.MainActivity">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
     <com.example.notes.jokeapp.presentation.FavoriteDataView
         android:id="@+id/jokeFavoriteDataView"
         android:layout_width="match_parent"
-        app:checkBoxText="@string/show_favorite_joke"
+        android:layout_height="wrap_content"
         app:actionButtonText="@string/button_get_joke"
-        android:layout_height="wrap_content" />
+        app:checkBoxText="@string/show_favorite_joke" />
 
-    <com.example.notes.jokeapp.presentation.FavoriteDataView
-        android:id="@+id/quoteFavoriteDataView"
-        android:layout_width="match_parent"
-        app:checkBoxText="@string/show_favorite_quote"
-        app:actionButtonText="@string/button_get_quote"
-        android:layout_height="wrap_content" />
+    <!--    <com.example.notes.jokeapp.presentation.FavoriteDataView-->
+    <!--        android:id="@+id/quoteFavoriteDataView"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        app:checkBoxText="@string/show_favorite_quote"-->
+    <!--        app:actionButtonText="@string/button_get_quote"-->
+    <!--        android:layout_height="wrap_content" />-->
 
 </LinearLayout>

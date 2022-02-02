@@ -1,6 +1,7 @@
 package com.example.notes.jokeapp
 
 import android.app.Application
+import com.example.notes.jokeapp.core.presentation.CommonCommunication
 import com.example.notes.jokeapp.data.*
 import com.example.notes.jokeapp.data.cache.*
 import com.example.notes.jokeapp.data.mapper.*
@@ -17,8 +18,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class MyApplication : Application() {
 
-    lateinit var viewModel: BaseViewModel
-    lateinit var quoteViewModel: BaseViewModel
+    lateinit var viewModel: BaseViewModel<Int>
+    lateinit var quoteViewModel: BaseViewModel<String>
+    lateinit var jokeCommunication: CommonCommunication<Int>
 
     override fun onCreate() {
         super.onCreate()
@@ -34,19 +36,21 @@ class MyApplication : Application() {
         val jokeRepository = BaseRepository(
             JokeCachedDataSource(realmProvider, JokeRealmMapper(), JokeRealmToCommonMapper()),
             JokeCloudDataSource(retrofit.create(JokeService::class.java)),
-            BaseCachedData<Int>()
+            BaseCachedData()
         )
         val quoteRepository = BaseRepository(
             QuoteCachedDataSource(realmProvider, QuoteRealmMapper(), QuoteRealmToCommonMapper()),
             QuoteCloudDataSource(retrofit.create(QuoteService::class.java)),
-            BaseCachedData<String>()
+            BaseCachedData()
         )
 
         val failureFactory = FailureFactory(resourceManager)
         val quoteMapper = CommonSuccessMapper<String>()
         val jokeMapper = CommonSuccessMapper<Int>()
 
-        BaseViewModel(BaseInteractor(jokeRepository, failureFactory, jokeMapper), BaseCommunication()).also { viewModel = it }
+        jokeCommunication = BaseCommunication()
+
+        BaseViewModel(BaseInteractor(jokeRepository, failureFactory, jokeMapper), jokeCommunication).also { viewModel = it }
 
         BaseViewModel(BaseInteractor(quoteRepository, failureFactory, quoteMapper), BaseCommunication()).also {
             quoteViewModel = it

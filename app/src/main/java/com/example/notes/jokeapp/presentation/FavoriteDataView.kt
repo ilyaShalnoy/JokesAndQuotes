@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import com.example.notes.jokeapp.R
+import com.example.notes.jokeapp.core.presentation.CommonItemViewModel
 import com.example.notes.jokeapp.core.presentation.CommonViewModel
 
 class FavoriteDataView : LinearLayout {
@@ -50,7 +51,7 @@ class FavoriteDataView : LinearLayout {
         }
     }
 
-    fun linkWith(commonViewModel: CommonViewModel) {
+    fun linkWith(commonViewModel: CommonItemViewModel) {
         checkBox.setOnCheckedChangeListener { _, isChecked ->
             commonViewModel.chooseFavorites(isChecked)
         }

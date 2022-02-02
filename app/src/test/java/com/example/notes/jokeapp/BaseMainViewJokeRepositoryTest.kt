@@ -3,7 +3,7 @@ package com.example.notes.jokeapp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import com.example.notes.jokeapp.core.data.CommonRepository
-import com.example.notes.jokeapp.core.presentation.Communication
+import com.example.notes.jokeapp.core.presentation.CommonCommunication
 import com.example.notes.jokeapp.presentation.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -93,7 +93,7 @@ class BaseMainViewJokeRepositoryTest {
         }
     }
 
-    private inner class TestCommunication : Communication {
+    private inner class TestCommunication : CommonCommunication {
 
         var text = ""
         var id = -1
