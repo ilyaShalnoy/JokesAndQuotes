@@ -11,11 +11,15 @@ class BaseCommonUiModel<E>(private val text: String, private val punchline: Stri
     override fun getIconResId() = R.drawable.ic_favorite_empty
 }
 
-class FavoriteCommonUiModel<E>(private val id: E, private val text: String, private val punchline: String) : CommonUiModel<E>(text, punchline) {
+class FavoriteCommonUiModel<E>(private val id: E, text: String, punchline: String) : CommonUiModel<E>(text, punchline) {
     override fun getIconResId() = R.drawable.ic_favorite_fill
     override fun change(listener: CommonDataRecyclerAdapter.FavoriteItemClickListener<E>) = listener.change(id)
 
     override fun matches(id: E): Boolean = this.id == id
+
+    override fun same(model: CommonUiModel<E>): Boolean {
+        return (model is FavoriteCommonUiModel<E>) && (model.id == id)
+    }
 }
 
 class FailedCommonUiModel<E>(private val text: String) : CommonUiModel<E>(text, "") {
@@ -29,6 +33,8 @@ class FailedCommonUiModel<E>(private val text: String) : CommonUiModel<E>(text, 
 abstract class CommonUiModel<T>(private val firstText: String, private val secondText: String) {
 
     protected open fun text() = "$firstText\n$secondText"
+
+    open fun same(model: CommonUiModel<T>): Boolean = false
 
     @DrawableRes
     protected abstract fun getIconResId(): Int

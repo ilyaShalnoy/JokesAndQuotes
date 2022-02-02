@@ -10,7 +10,7 @@ import com.example.notes.jokeapp.core.presentation.CommonCommunication
 class CommonDataRecyclerAdapter<T>(
     private val listener: FavoriteItemClickListener<T>,
     private val communicationList: CommonCommunication<T>
-    ) : RecyclerView.Adapter<CommonDataRecyclerAdapter.CommonDataViewHolder<T>>() {
+) : RecyclerView.Adapter<CommonDataRecyclerAdapter.CommonDataViewHolder<T>>() {
 
     interface FavoriteItemClickListener<T> {
         fun change(id: T)
@@ -40,15 +40,7 @@ class CommonDataRecyclerAdapter<T>(
     }
 
     fun update() {
-        notifyDataSetChanged()
-    }
-
-    fun update(pair: Pair<Boolean, Int>) {
-        if (pair.first) {
-            notifyItemInserted(pair.second)
-        } else {
-            notifyItemRemoved(pair.second)
-        }
+        communicationList.getDiffResult().dispatchUpdatesTo(this)
     }
 
 

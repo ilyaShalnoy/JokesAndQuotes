@@ -21,10 +21,6 @@ class MainActivity : AppCompatActivity() {
         val favoriteDataView = findViewById<FavoriteDataView>(R.id.jokeFavoriteDataView)
         favoriteDataView.linkWith(viewModel)
 
-        val observer: (t: List<CommonUiModel<Int>>) -> Unit = { _ ->
-            adapter.update()
-        }
-
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         adapter = CommonDataRecyclerAdapter(object : CommonDataRecyclerAdapter.FavoriteItemClickListener<Int> {
             override fun change(id: Int) {
@@ -35,8 +31,7 @@ class MainActivity : AppCompatActivity() {
                 ).setAction(
                     R.string.yes
                 ) {
-                    val position = viewModel.changeItemStatus(id, this@MainActivity, observer)
-                    adapter.update(Pair(false, position))
+                    viewModel.changeItemStatus(id)
                 }.show()
             }
         }, jokeCommunication)
@@ -44,7 +39,9 @@ class MainActivity : AppCompatActivity() {
 
         recyclerView.adapter = adapter
 
-        viewModel.observeList(this, observer)
+        viewModel.observeList(this, {
+            adapter.update()
+        })
 
         viewModel.getItemList()
 
