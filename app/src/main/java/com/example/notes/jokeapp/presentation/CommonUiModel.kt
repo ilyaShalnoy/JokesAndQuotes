@@ -26,7 +26,7 @@ class FailedCommonUiModel<E>(private val text: String) : CommonUiModel<E>(text, 
     override fun text() = text
     override fun getIconResId() = 0
     override fun show(communication: Communication) = communication.showState(
-        BaseViewModel.State.Failed(text(), getIconResId())
+        State.Failed(text(), getIconResId())
     )
 }
 
@@ -40,7 +40,7 @@ abstract class CommonUiModel<T>(private val firstText: String, private val secon
     protected abstract fun getIconResId(): Int
 
     open fun show(communication: Communication) = communication.showState(
-        BaseViewModel.State.Initial(text(), getIconResId())
+        State.Initial(text(), getIconResId())
     )
 
     open fun matches(id: T): Boolean = false

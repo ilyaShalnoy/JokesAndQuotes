@@ -1,5 +1,6 @@
 package com.example.notes.jokeapp.presentation
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.lifecycle.*
 import androidx.lifecycle.ViewModel
@@ -10,12 +11,17 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class BaseViewModel<T>(
+abstract class BaseViewModel<T>(
+    private val name: String,
     private val interactor: CommonInteractor<T>,
-    private val communication: CommonCommunication<T>,
+    val communication: CommonCommunication<T>,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : ViewModel(), CommonViewModel<T> {
 
+
+    init {
+        Log.d("ViewModelTag", "init $name")
+    }
 
     override fun getItem() {
         viewModelScope.launch(dispatcher) {
@@ -55,62 +61,26 @@ class BaseViewModel<T>(
 
     override fun observeList(owner: LifecycleOwner, observer: Observer<List<CommonUiModel<T>>>) = communication.observeList(owner, observer)
 
-    sealed class State {
 
-        protected abstract val type: Int
-
-        companion object {
-            const val INITIAL = 0
-            const val PROGRESS = 1
-            const val FAILED = 2
-        }
-
-        fun isType(type: Int): Boolean = this.type == type
-
-        fun show(progress: ShowView, button: EnableView, textView: ShowText, imageButton: ShowImage) {
-            show(progress, button)
-            show(textView, imageButton)
-        }
-
-        protected open fun show(progress: ShowView, button: EnableView) {}
-        protected open fun show(textView: ShowText, imageButton: ShowImage) {}
+    override fun onCleared() {
+        Log.d("ViewModelTag", "clear $name")
+    }
 
 
-        object Progress : State() {
-            override val type: Int = PROGRESS
-
-            override fun show(progress: ShowView, button: EnableView) {
-                progress.show(true)
-                button.enable(false)
-            }
-        }
-
-        abstract class Info(private val text: String, @DrawableRes private val id: Int) : State() {
-            override fun show(progress: ShowView, button: EnableView) {
-                progress.show(false)
-                button.enable(true)
-            }
-
-            override fun show(textView: ShowText, imageButton: ShowImage) {
-                textView.show(text)
-                imageButton.show(id)
-            }
-        }
-
-        class Initial(text: String, @DrawableRes private val id: Int) : Info(text, id) {
-            override val type: Int = INITIAL
-        }
-
-        class Failed(text: String, @DrawableRes private val id: Int) : Info(text, id) {
-            override val type: Int = FAILED
-
-        }
+    fun <T> List<CommonItem<T>>.toUiList() = map {
+        it.to()
     }
 }
 
-fun <T> List<CommonItem<T>>.toUiList() = map {
-    it.to()
-}
+class JokesViewModel(
+    interactor: CommonInteractor<Int>,
+    communication: CommonCommunication<Int>,
+) : BaseViewModel<Int>("JokesViewModel", interactor, communication)
+
+class QuotesViewModel(
+    interactor: CommonInteractor<String>,
+    communication: CommonCommunication<String>
+) : BaseViewModel<String>("QuotesViewModel", interactor, communication)
 
 
 

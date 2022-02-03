@@ -8,14 +8,14 @@ import com.example.notes.jokeapp.core.presentation.CommonCommunication
 
 class BaseCommunication<T> : CommonCommunication<T> {
 
-    private val liveData = MutableLiveData<BaseViewModel.State>()
+    private val liveData = MutableLiveData<State>()
     private val listLiveData = MutableLiveData<ArrayList<CommonUiModel<T>>>()
 
     private lateinit var diffResult: DiffUtil.DiffResult
 
     override fun getDiffResult() = diffResult
 
-    override fun showState(state: BaseViewModel.State) {
+    override fun showState(state: State) {
         liveData.value = state
     }
 
@@ -29,7 +29,7 @@ class BaseCommunication<T> : CommonCommunication<T> {
         listLiveData.observe(owner, observer)
     }
 
-    override fun observe(lifecycleOwner: LifecycleOwner, observer: Observer<BaseViewModel.State>) {
+    override fun observe(lifecycleOwner: LifecycleOwner, observer: Observer<State>) {
         liveData.observe(lifecycleOwner, observer)
     }
 

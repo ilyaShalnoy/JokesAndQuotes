@@ -66,7 +66,7 @@ class FavoriteDataView : LinearLayout {
         }
     }
 
-    fun show(state: BaseViewModel.State) = state.show(progress, actionButton, textView, changeButton)
+    fun show(state: State) = state.show(progress, actionButton, textView, changeButton)
 
     fun checkBoxText(@StringRes id: Int) = checkBox.setText(id)
     fun actionButtonText(@StringRes id: Int) = actionButton.setText(id)
