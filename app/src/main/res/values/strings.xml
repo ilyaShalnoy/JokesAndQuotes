@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">JokeApp</string>
+    <string name="app_name">Jokes &amp; Quotes</string>
     <string name="button_get_joke">get joke</string>
     <string name="button_get_quote">get quote</string>
     <string name="no_connection">No internet connection</string>
